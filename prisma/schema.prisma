@@ -1,14 +1,87 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+type OrdersOrderItems {
+  id      String @map("_id") @db.ObjectId
+  name    String
+  price   Int
+  product String @db.ObjectId
+  qty     Int
+}
+
+type OrdersShippingAddress {
+  address    String
+  apartment  String
+  city       String
+  postalCode String
+}
+
+type ProductsReviews {
+  id        String   @map("_id") @db.ObjectId
+  comment   String
+  createdAt DateTime @db.Date
+  name      String
+  rating    Int
+  updatedAt DateTime @db.Date
+  user      String   @db.ObjectId
+}
+
+model orders {
+  id              String                @id @default(auto()) @map("_id") @db.ObjectId
+  v               Int                   @map("__v")
+  createdAt       DateTime              @db.Date
+  firstName       String
+  isDelivered     Boolean
+  isPaid          Boolean
+  itemsPrice      Int
+  lastName        String
+  orderItems      OrdersOrderItems[]
+  paidAt          DateTime              @db.Date
+  paymentMethod   String
+  /// Multiple data types found: Float: 22.2%, Int: 77.8% out of 9 sampled entries
+  phone           Json
+  screenshot      String
+  shippingAddress OrdersShippingAddress
+  shippingPrice   Int
+  taxPrice        Int
+  totalPrice      Int
+  updatedAt       DateTime              @db.Date
+  user            String                @db.ObjectId
+}
+
+model products {
+  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int               @map("__v")
+  brand              String
+  category           String
+  countInStock       Int
+  createdAt          DateTime          @db.Date
+  description        String
+  discountPercentage Int
+  image              String
+  isFeaturedProduct  Boolean
+  isOnSale           Boolean
+  name               String
+  numReviews         Int
+  price              Int
+  rating             Int
+  reviews            ProductsReviews[]
+  updatedAt          DateTime          @db.Date
+}
+
+model users {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int      @map("__v")
+  createdAt DateTime @db.Date
+  email     String   @unique(map: "email_1")
+  isAdmin   Boolean
+  name      String
+  password  String?
+  updatedAt DateTime @db.Date
 }

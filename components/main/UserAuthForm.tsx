@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import { cn } from "@/lib/utils";
 // import { Icons } from "@/components/icons"
 import { Button } from "../ui/button";
@@ -16,6 +14,9 @@ import { useRouter } from "next/navigation";
 import { Form } from "../ui/form";
 import FormInput from "./FormInput";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import SocialIconButton from "./SocialIconButton";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface UserAuthFormProps {
   variant: string;
@@ -28,12 +29,12 @@ export function UserAuthForm({
   defaultValues,
   zodSchema,
 }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const toast = useToast();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { toast } = useToast();
   const router = useRouter();
 
   // USE FORM
-  const form = useForm<z.infer<typeof zodSchema>>({
+  let form = useForm<z.infer<typeof zodSchema>>({
     resolver: zodResolver(zodSchema),
     defaultValues,
   });
@@ -42,20 +43,37 @@ export function UserAuthForm({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = form;
 
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  // ON SUBMIT FUNCTION
   const onSubmit: SubmitHandler<z.infer<typeof zodSchema>> = async (data) => {
     setIsLoading(true);
 
-    //LOG IN
-    if (variant === "Login") {
-      //LOGIN
-      console.log("login");
-    }
-    if (variant === "Register") {
-      // REGISTER
-      console.log("register");
-    }
+    //LOGIN TO WEBSITE
+    signIn("credentials", {
+      ...data,
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          toast({
+            variant: "destructive",
+            description: `${callback.error}`,
+          });
+        }
+        if (callback?.ok && !callback.error) {
+          toast({
+            description: `Login successful!`,
+          });
+          router.push("/users");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -123,13 +141,15 @@ export function UserAuthForm({
       </div>
 
       {/* SOCIAL BUTTONS  */}
-      <div>
-        <Button variant="outline" type="button" disabled={isLoading}>
-          <FaGithub />
-        </Button>
-        <Button variant="outline" type="button" disabled={isLoading}>
-          <FaGithub />
-        </Button>
+      <div className="flex gap-2 justify-between">
+        <SocialIconButton
+          icon={FaGithub}
+          // onClickFunction={() => socialLoginHandler("github")}
+        />
+        <SocialIconButton
+          icon={FaGoogle}
+          // onClickFunction={() => socialLoginHandler("google")}
+        />
       </div>
     </div>
   );

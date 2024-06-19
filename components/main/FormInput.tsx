@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FormControl,
   FormField,
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { z } from "zod";
 
 interface formProps {
+  
   control: any;
   placeholder: string;
   name: any;
@@ -31,6 +32,7 @@ interface formProps {
 }
 
 const FormInput: React.FC<formProps> = ({
+ 
   control,
   placeholder,
   name,
@@ -41,6 +43,8 @@ const FormInput: React.FC<formProps> = ({
   required,
   disabled,
 }) => {
+  
+
   return (
     <FormField
       control={control}
@@ -54,7 +58,7 @@ const FormInput: React.FC<formProps> = ({
               type={type}
               placeholder={placeholder}
               {...field}
-              {...register(name, { required })}
+              // {...register(name, { required })}
               disabled={disabled}
               className={cn(errors[name] && "focus:ring-rose-500")}
             />
