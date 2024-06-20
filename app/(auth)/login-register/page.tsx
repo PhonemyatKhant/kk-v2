@@ -1,28 +1,12 @@
 "use client";
 
-import { Metadata } from "next";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { UserAuthForm } from "@/components/main/UserAuthForm";
 import { useState } from "react";
-import { z } from "zod";
 
 type Variant = "Login" | "Register";
-
-
-
-//FORM DEFAULT VALUES
-const registerDefaults = {
-  username: "",
-  email: "",
-  password: "",
-};
-const loginDefaults = {
-  email: "",
-  password: "",
-};
 
 export default function AuthenticationPage() {
   const [variant, setVariant] = useState<Variant>("Login");
@@ -41,10 +25,10 @@ export default function AuthenticationPage() {
         {/* LEFT IMAGE LOGO CONTAINER  */}
         <div className="relative hidden h-full flex-col  p-10 text-white lg:flex dark:border-r">
           {/* BACKGROUND IMG  */}
-          <div className="absolute inset-0 bg-zinc-900" />
+          <div className="absolute inset-0 bg-primary/80  " />
 
           {/* TOP LEFT KK LOGO */}
-          <div className="relative z-20 flex items-center text-lg font-medium">
+          <div className="relative z-20 flex items-center text-lg font-medium  text-primary-foreground">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -61,7 +45,7 @@ export default function AuthenticationPage() {
           </div>
 
           {/* BOTTOM QUOTE  */}
-          <div className="relative z-20 mt-auto">
+          <div className="relative z-20 mt-auto text-primary-foreground">
             <blockquote className="space-y-2">
               <p className="text-lg">
                 &ldquo;Unveiling Elegance in Every Thread – Explore the Finest
@@ -80,16 +64,18 @@ export default function AuthenticationPage() {
             {/* AUTH TITLE  */}
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
-                Create an account
+                {variant === "Login"
+                  ? "Sign in to your account"
+                  : "Create an account"}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Enter your email below to create your account
+                {variant === "Login"
+                  ? "Enter your credentials below to sign in"
+                  : "Enter your email below to create your account"}
               </p>
             </div>
             {/* AUTH FORM  */}
-            <UserAuthForm
-              variant={variant}        
-            />
+            <UserAuthForm variant={variant} />
 
             {/* AUTH DESCRIPTION  */}
             <p className="px-8 text-center text-sm text-muted-foreground">

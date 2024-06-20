@@ -1,25 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-// import { Icons } from "@/components/icons"
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 import { Form } from "../ui/form";
 import FormInput from "./FormInput";
-import { FaGithub, FaGoogle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import SocialIconButton from "./SocialIconButton";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { loginSchema, registerSchema } from "@/schemas/authSchemas";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import AlertDialog from "./AlertDialog";
 
 interface UserAuthFormProps {
   variant: string;
@@ -27,7 +24,12 @@ interface UserAuthFormProps {
 
 export function UserAuthForm({ variant }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { toast } = useToast();
+
+  // ALERT STATES
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [alertType, setAlertType] = useState<"success" | "destructive">();
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+
   const router = useRouter();
 
   // USE FORM
@@ -54,28 +56,77 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
   }, [variant]);
 
   // ON SUBMIT FUNCTION
-  const onSubmit: SubmitHandler<
-    z.infer<typeof loginSchema | typeof registerSchema>
+  const onSubmitRegister: SubmitHandler<
+    z.infer<typeof registerSchema>
   > = async (data) => {
+    //API LOADING
     setIsLoading(true);
 
+    console.log(data);
+
+    if (variant === "Register") {
+      // REGISTER USER
+
+      await axios
+        .post("/api/register", data)
+        .then(() => {
+          signIn("credentials", {
+            ...data,
+            redirect: false,
+          });
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data);
+          setShowAlert(true);
+          setAlertType("destructive");
+        })
+        .finally(() => setIsLoading(false));
+    }
+  };
+  const onSubmitLogin: SubmitHandler<z.infer<typeof loginSchema>> = async (
+    data
+  ) => {
+    //API LOADING
+    setIsLoading(true);
+    console.log(data);
+
+    if (variant === "Login") {
+      console.log("login ran");
+
+      //LOGIN TO WEBSITE
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            setErrorMessage(callback.error);
+            setShowAlert(true);
+            setAlertType("destructive");
+          }
+          if (callback?.ok && !callback.error) {
+            router.push("/");
+          }
+        })
+        .finally(() => setIsLoading(false));
+    }
+  };
+
+  // SOCIAL LOGIN FUNCTION GITHUB GOOGLE
+
+  const socialLoginHandler = (provider: string) => {
     //LOGIN TO WEBSITE
-    signIn("credentials", {
-      ...data,
+    signIn(provider, {
       redirect: false,
     })
       .then((callback) => {
         if (callback?.error) {
-          toast({
-            variant: "destructive",
-            description: `${callback.error}`,
-          });
+          setErrorMessage(callback.error);
+          setShowAlert(true);
+          setAlertType("destructive");
         }
         if (callback?.ok && !callback.error) {
-          toast({
-            description: `Login successful!`,
-          });
-          router.push("/users");
+          router.push("/");
         }
       })
       .finally(() => setIsLoading(false));
@@ -85,14 +136,21 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
     <div className={cn("grid gap-6")}>
       {/* LOGIN REGISTER FORM  */}
       {variant === "Login" ? (
-        <LoginForm form={loginForm} onSubmit={onSubmit} isLoading={isLoading} />
+        <LoginForm
+          form={loginForm}
+          onSubmit={onSubmitLogin}
+          isLoading={isLoading}
+        />
       ) : (
         <RegisterForm
           form={registerForm}
-          onSubmit={onSubmit}
+          onSubmit={onSubmitRegister}
           isLoading={isLoading}
         />
       )}
+
+      {/* ALERT DIALOG  */}
+      {showAlert && <AlertDialog message={errorMessage} type={alertType} />}
 
       {/* OR CONTINUE WITH  */}
       <div className="relative">
@@ -110,11 +168,11 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
       <div className="flex gap-2 justify-between">
         <SocialIconButton
           icon={FaGithub}
-          // onClickFunction={() => socialLoginHandler("github")}
+          onClickFunction={() => socialLoginHandler("github")}
         />
         <SocialIconButton
-          icon={FaGoogle}
-          // onClickFunction={() => socialLoginHandler("google")}
+          icon={FcGoogle}
+          onClickFunction={() => socialLoginHandler("google")}
         />
       </div>
     </div>

@@ -59,7 +59,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               //   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               <h1>Loading</h1>
             )}
-            "Create A New Account"
+            Create A New Account
           </Button>
         </div>
       </form>
