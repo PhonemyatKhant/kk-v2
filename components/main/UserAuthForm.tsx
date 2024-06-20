@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Form } from "../ui/form";
 import FormInput from "./FormInput";
@@ -31,6 +31,13 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
   const [showAlert, setShowAlert] = useState<boolean>(false);
 
   const router = useRouter();
+  const session = useSession();
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/");
+    }
+  }, [session?.status, router]);
 
   // USE FORM
   let loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -41,7 +48,7 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
     },
   });
   let registerForm = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
       email: "",
@@ -56,8 +63,8 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
   }, [variant]);
 
   // ON SUBMIT FUNCTION
-  const onSubmitRegister: SubmitHandler<
-    z.infer<typeof registerSchema>
+  const onSubmit: SubmitHandler<
+    z.infer<typeof registerSchema | typeof loginSchema>
   > = async (data) => {
     //API LOADING
     setIsLoading(true);
@@ -82,13 +89,6 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
         })
         .finally(() => setIsLoading(false));
     }
-  };
-  const onSubmitLogin: SubmitHandler<z.infer<typeof loginSchema>> = async (
-    data
-  ) => {
-    //API LOADING
-    setIsLoading(true);
-    console.log(data);
 
     if (variant === "Login") {
       console.log("login ran");
@@ -136,15 +136,11 @@ export function UserAuthForm({ variant }: UserAuthFormProps) {
     <div className={cn("grid gap-6")}>
       {/* LOGIN REGISTER FORM  */}
       {variant === "Login" ? (
-        <LoginForm
-          form={loginForm}
-          onSubmit={onSubmitLogin}
-          isLoading={isLoading}
-        />
+        <LoginForm form={loginForm} onSubmit={onSubmit} isLoading={isLoading} />
       ) : (
         <RegisterForm
           form={registerForm}
-          onSubmit={onSubmitRegister}
+          onSubmit={onSubmit}
           isLoading={isLoading}
         />
       )}

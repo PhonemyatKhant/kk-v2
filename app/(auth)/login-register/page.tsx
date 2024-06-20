@@ -9,6 +9,7 @@ import { useState } from "react";
 type Variant = "Login" | "Register";
 
 export default function AuthenticationPage() {
+  
   const [variant, setVariant] = useState<Variant>("Login");
   return (
     <>

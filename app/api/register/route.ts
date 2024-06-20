@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     // console.log(body);
 
     const { email, username, password } = body;
-    console.log(body);
+    
     
 
     // CHECK IF THE DATA IS PRESENT
