@@ -17,41 +17,46 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
 import SocialIconButton from "./SocialIconButton";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { loginSchema, registerSchema } from "@/schemas/authSchemas";
+import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
 
 interface UserAuthFormProps {
   variant: string;
-  defaultValues: object;
-  zodSchema: any;
 }
 
-export function UserAuthForm({
-  variant,
-  defaultValues,
-  zodSchema,
-}: UserAuthFormProps) {
+export function UserAuthForm({ variant }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
 
   // USE FORM
-  let form = useForm<z.infer<typeof zodSchema>>({
-    resolver: zodResolver(zodSchema),
-    defaultValues,
+  let loginForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  let registerForm = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = form;
-
+  // RESET FORM
   useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
+    loginForm.reset();
+    registerForm.reset();
+  }, [variant]);
 
   // ON SUBMIT FUNCTION
-  const onSubmit: SubmitHandler<z.infer<typeof zodSchema>> = async (data) => {
+  const onSubmit: SubmitHandler<
+    z.infer<typeof loginSchema | typeof registerSchema>
+  > = async (data) => {
     setIsLoading(true);
 
     //LOGIN TO WEBSITE
@@ -78,55 +83,16 @@ export function UserAuthForm({
 
   return (
     <div className={cn("grid gap-6")}>
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-2">
-            <div className="grid gap-1">
-              {variant === "Register" && (
-                <FormInput
-                  control={form.control}
-                  placeholder="username"
-                  name="username"
-                  type="text"
-                  required={true}
-                  register={register}
-                  errors={errors}
-                  disabled={isLoading}
-                />
-              )}
-              <FormInput
-                control={form.control}
-                placeholder="example@email.com"
-                name="email"
-                type="text"
-                required={true}
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-              />
-              <FormInput
-                control={form.control}
-                placeholder="*****"
-                name="password"
-                type="password"
-                required={true}
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-              />
-            </div>
-            <Button disabled={isLoading}>
-              {isLoading && (
-                //   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                <h1>Loading</h1>
-              )}
-              {variant === "Login"
-                ? "Sign In with Credentials"
-                : "Create New Account"}
-            </Button>
-          </div>
-        </form>
-      </Form>
+      {/* LOGIN REGISTER FORM  */}
+      {variant === "Login" ? (
+        <LoginForm form={loginForm} onSubmit={onSubmit} isLoading={isLoading} />
+      ) : (
+        <RegisterForm
+          form={registerForm}
+          onSubmit={onSubmit}
+          isLoading={isLoading}
+        />
+      )}
 
       {/* OR CONTINUE WITH  */}
       <div className="relative">

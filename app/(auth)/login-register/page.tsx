@@ -11,18 +11,7 @@ import { z } from "zod";
 
 type Variant = "Login" | "Register";
 
-//ZOD FORM SCHEMA
-// REGISTER
-const registerSchema = z.object({
-  email: z.string().email("This is not a valid email!"),
-  password: z.string().min(5, { message: "Must be 5 or more characters long" }),
-  username: z.string().min(1, { message: "Username is required" }),
-});
-// LOGIN
-const loginSchema = z.object({
-  email: z.string().email("This is not a valid email!"),
-  password: z.string().min(5, { message: "Must be 5 or more characters long" }),
-});
+
 
 //FORM DEFAULT VALUES
 const registerDefaults = {
@@ -99,11 +88,7 @@ export default function AuthenticationPage() {
             </div>
             {/* AUTH FORM  */}
             <UserAuthForm
-              variant={variant}
-              defaultValues={
-                variant === "Login" ? loginDefaults : registerDefaults
-              }
-              zodSchema={variant === "Login" ? loginSchema : registerSchema}
+              variant={variant}        
             />
 
             {/* AUTH DESCRIPTION  */}
