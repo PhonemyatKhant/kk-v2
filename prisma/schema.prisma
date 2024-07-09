@@ -101,15 +101,15 @@ model Products {
   category           String
   countInStock       Int
   createdAt          DateTime @default(now())
-  description        String?
-  discountPercentage Int?
+  description        String
+  discountPercentage Int @default(0)
   image              String
-  isFeaturedProduct  Boolean  @default(false)
+  // isFeaturedProduct  Boolean  @default(false)
   isOnSale           Boolean  @default(false)
   name               String
-  numReviews         Int
+  numReviews         Int? @default(0)
   price              Int
-  rating             Int
+  rating             Int @default(0)
   updatedAt          DateTime @updatedAt
 
   reviews ProductsReviews[]

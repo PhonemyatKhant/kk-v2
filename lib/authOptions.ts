@@ -59,7 +59,27 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-
+  // callbacks: {
+  //   async jwt({ token, user }) {
+  //     if (user) {
+  //       token.isAdmin = user.isAdmin;
+  //     } else {
+  //       const dbUser = await prisma.user.findUnique({
+  //         where: { email: token.email! },
+  //       });
+  //       if (dbUser) {
+  //         token.isAdmin = dbUser.isAdmin;
+  //       }
+  //     }
+  //     return token;
+  //   },
+  //   async session({ session, token }) {
+  //     if (session?.user) {
+  //       session.user.isAdmin = token.isAdmin;
+  //     }
+  //     return session;
+  //   },
+  // },
   //   ON DEVELOPMENT ENABLE DEBUG OPTIONS
   debug: process.env.NODE_ENV === "development",
 
