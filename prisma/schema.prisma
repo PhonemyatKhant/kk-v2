@@ -99,11 +99,11 @@ model Products {
 
   brand              String
   category           String
-  countInStock       Int
+  countInStock       Int @default(0)
   createdAt          DateTime @default(now())
-  description        String
-  discountPercentage Int @default(0)
-  image              String
+  description        String?
+  discountPercentage Int? @default(0)
+  image              String[]
   // isFeaturedProduct  Boolean  @default(false)
   isOnSale           Boolean  @default(false)
   name               String

@@ -22,9 +22,9 @@ export async function POST(request: Request) {
       !name ||
       !brand ||
       !category ||
-      !countInStock ||
+      
       !description ||
-      !discountPercentage ||
+      
       !image ||
       !price
     ) {
